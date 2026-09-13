@@ -2,7 +2,7 @@ import type { StateMessageProps } from "../types/messages";
 import type { Settings } from "../types/state";
 import { TypedEventEmitter } from "../utils";
 import { stateMessageEvents } from "./events";
-import StateProperty from "./property";
+import { StateProperty } from "../property";
 import { defaultSettings } from "../consts";
 
 type SettingsEvents =

@@ -3,6 +3,7 @@ import EventEmitter2 from "eventemitter2";
 import { isFirefox, portCryptoAlgorithm } from "./consts";
 import { Deferred } from "./utils";
 import StateManager from "./state";
+import { BindableProperty } from "./property";
 
 const extensionId = "ngbhofnofkggjbpkpnogcdfdgjkpmgka";
 
@@ -10,8 +11,8 @@ export default new class Port extends EventEmitter2 {
     port?: chrome.runtime.Port;
     firstMessage = true;
     firstState = true;
-    disconnected = $state(false);
-    unavailable = $state(false);
+    disconnected = new BindableProperty(false);
+    unavailable = new BindableProperty(false);
     pendingMessages = new Map<string, (response?: any) => void>();
     runtime!: typeof chrome.runtime;
     signKey = Deferred.create<CryptoKey>();
@@ -23,26 +24,26 @@ export default new class Port extends EventEmitter2 {
         if(typeof chrome === "undefined") {
             if(isFirefox) {
                 const unavailableTimeout = setTimeout(() => {
-                    this.unavailable = true;
+                    this.unavailable.value = true;
                 }, 1000);
 
                 window.addEventListener("message", (e) => {
                     if(e.data?.source !== "gimloader-in") return;
                     if(e.data?.type === "portDisconnected") {
                         this.firstMessage = true;
-                        this.disconnected = true;
+                        this.disconnected.value = true;
                         return;
                     }
     
                     this.onMessage(e.data);
 
                     clearTimeout(unavailableTimeout);
-                    this.unavailable = false;
+                    this.unavailable.value = false;
                 });
     
                 window.postMessage({ source: "gimloader-out", json: '{"type": "ready"}' });
             } else {
-                this.unavailable = true;
+                this.unavailable.value = true;
             }
         } else {
             if(!isFirefox && !chrome.runtime) return;
@@ -70,7 +71,7 @@ export default new class Port extends EventEmitter2 {
         this.port.onMessage.addListener(this.onMessage.bind(this));
 
         this.port.onDisconnect.addListener(() => {
-            this.disconnected = true;
+            this.disconnected.value = true;
 
             if(this.runtime.lastError) {
                 // extension is likely removed entirely (if reinstalled we can reconnect)
@@ -103,7 +104,7 @@ export default new class Port extends EventEmitter2 {
     }
 
     onMessage(data: any) {
-        this.disconnected = false;
+        this.disconnected.value = false;
 
         if(data?.type === "key") {
             crypto.subtle.importKey("jwk", data.key, portCryptoAlgorithm, true, ["sign", "verify"])

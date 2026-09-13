@@ -2,7 +2,7 @@ import type { LayoutItem, LibraryInfo, PluginInfo, ScriptInfo, ScriptInfoTypes, 
 import type { DeleteResult, FolderExport, ImportResults, ScriptType, StateMessageProps, Dependency } from "../types/messages";
 import type { ScriptHeaders } from "../types/scripts";
 import { englishList, TypedEventEmitter } from "../utils";
-import StateProperty from "./property";
+import { StateProperty } from "../property";
 import { apply, handle, stateEvents, stateMessageEvents } from "./events";
 import { parseDep, parseScriptHeaders } from "../utils";
 import type StateManager from ".";

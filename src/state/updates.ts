@@ -1,7 +1,7 @@
 import type { StateMessageProps } from "../types/messages";
 import { TypedEventEmitter } from "../utils";
 import { stateMessageEvents } from "./events";
-import StateProperty from "./property";
+import { StateProperty } from "../property";
 
 interface UpdatesEvents {
     available: [updates: string[]];

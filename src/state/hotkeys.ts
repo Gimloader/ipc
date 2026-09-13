@@ -3,7 +3,7 @@ import type { StateMessageProps } from "../types/messages";
 import type { ConfigurableHotkeysState } from "../types/state";
 import { TypedEventEmitter } from "../utils";
 import { stateMessageEvents } from "./events";
-import StateProperty from "./property";
+import { StateProperty } from "../property";
 
 interface HotkeysEvents {
     configurableUpdate: [id: string, trigger: HotkeyTrigger | null];

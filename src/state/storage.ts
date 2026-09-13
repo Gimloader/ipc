@@ -1,6 +1,6 @@
 import type { PluginStorage } from "../types/state";
 import type { StateMessageProps } from "../types/messages";
-import StateProperty from "./property";
+import { StateProperty } from "../property";
 import { stateMessageEvents } from "./events";
 import { TypedEventEmitter } from "../utils";
 
