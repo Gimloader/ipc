@@ -1,0 +1,21 @@
+{
+  "name": "@gimloader/ipc",
+  "module": "src/index.ts",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./port": "./src/port.svelte.ts"
+  },
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/chrome": "^0.2.9"
+  },
+  "peerDependencies": {
+    "svelte": "5.43.0",
+    "typescript": "^6"
+  },
+  "dependencies": {
+    "eventemitter2": "^6.4.9"
+  }
+}

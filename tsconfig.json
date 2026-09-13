@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "module": "ES2022",
+        "moduleResolution": "Bundler",
+        "jsx": "react",
+        "skipLibCheck": true,
+        "resolveJsonModule": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "noImplicitOverride": true,
+        "types": ["bun", "chrome", "svelte"],
+        "noEmit": true
+    }
+}
