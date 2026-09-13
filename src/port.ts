@@ -84,7 +84,7 @@ export default new class Port extends EventEmitter2 {
 
     async postMessage(type: string, message: any, returnId?: string) {
         // just discard messages sent while disconnected, we'll resynchronize to before they mattered
-        if(this.disconnected) return;
+        if(this.disconnected.value) return;
 
         if(typeof chrome !== "undefined") {
             this.port?.postMessage({ type, message, returnId, source: "gimloader-out" });
