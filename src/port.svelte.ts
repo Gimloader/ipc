@@ -11,6 +11,7 @@ export default new class Port extends EventEmitter2 {
     firstMessage = true;
     firstState = true;
     disconnected = $state(false);
+    unavailable = $state(false);
     pendingMessages = new Map<string, (response?: any) => void>();
     runtime!: typeof chrome.runtime;
     signKey = Deferred.create<CryptoKey>();
@@ -20,18 +21,29 @@ export default new class Port extends EventEmitter2 {
         this.name = name;
 
         if(typeof chrome === "undefined") {
-            window.addEventListener("message", (e) => {
-                if(e.data?.source !== "gimloader-in") return;
-                if(e.data?.type === "portDisconnected") {
-                    this.firstMessage = true;
-                    this.disconnected = true;
-                    return;
-                }
+            if(isFirefox) {
+                const unavailableTimeout = setTimeout(() => {
+                    this.unavailable = true;
+                }, 1000);
 
-                this.onMessage(e.data);
-            });
+                window.addEventListener("message", (e) => {
+                    if(e.data?.source !== "gimloader-in") return;
+                    if(e.data?.type === "portDisconnected") {
+                        this.firstMessage = true;
+                        this.disconnected = true;
+                        return;
+                    }
+    
+                    this.onMessage(e.data);
 
-            window.postMessage({ source: "gimloader-out", json: '{"type": "ready"}' });
+                    clearTimeout(unavailableTimeout);
+                    this.unavailable = false;
+                });
+    
+                window.postMessage({ source: "gimloader-out", json: '{"type": "ready"}' });
+            } else {
+                this.unavailable = true;
+            }
         } else {
             if(!isFirefox && !chrome.runtime) return;
             this.runtime = chrome.runtime;
