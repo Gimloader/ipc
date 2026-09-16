@@ -9,7 +9,7 @@
         "allowSyntheticDefaultImports": true,
         "strict": true,
         "noImplicitOverride": true,
-        "types": ["bun", "chrome", "svelte"],
+        "types": ["bun", "chrome"],
         "noEmit": true
     }
 }
