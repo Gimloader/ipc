@@ -1,8 +1,8 @@
 import type EventEmitter from "node:events";
 import type { ScriptHeaders } from "./types/scripts";
-import EventEmitter2 from "eventemitter2";
+import EventEmitter3 from "eventemitter3";
 
-export const TypedEventEmitter = EventEmitter2 as unknown as typeof EventEmitter;
+export const TypedEventEmitter = EventEmitter3 as unknown as typeof EventEmitter;
 
 export function englishList(items: string[], combiner = "and") {
     if(items.length === 1) return items[0];

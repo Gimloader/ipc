@@ -1,5 +1,5 @@
 import type { ExtractOnceMessage, Messages, OnceMessageProps, OnceMessages, StateMessageProps, StateMessages } from "./types/messages";
-import EventEmitter2 from "eventemitter2";
+import EventEmitter3 from "eventemitter3";
 import { isFirefox, portCryptoAlgorithm } from "./consts";
 import { Deferred } from "./utils";
 import StateManager from "./state";
@@ -7,7 +7,7 @@ import { BindableProperty } from "./property";
 
 const extensionId = "ngbhofnofkggjbpkpnogcdfdgjkpmgka";
 
-export default new class Port extends EventEmitter2 {
+export default new class Port {
     port?: chrome.runtime.Port;
     firstMessage = true;
     firstState = true;
@@ -17,6 +17,7 @@ export default new class Port extends EventEmitter2 {
     runtime!: typeof chrome.runtime;
     signKey = Deferred.create<CryptoKey>();
     name?: string;
+    events = new EventEmitter3();
 
     init(name?: string) {
         this.name = name;
@@ -137,7 +138,7 @@ export default new class Port extends EventEmitter2 {
             this.pendingMessages.delete(returnId);
         } else {
             StateManager.handle(data.type, data.message, true);
-            this.emit(data.type, data.message);
+            this.events.emit(data.type, data.message);
         }
     }
 
@@ -164,7 +165,7 @@ export default new class Port extends EventEmitter2 {
         }, 20000);
     }
 
-    override on<Channel extends Messages["type"]>(channel: Channel, callback: (value: Extract<Messages, { type: Channel }>["props"]) => void) {
-        return super.on(channel, callback);
+    on<Channel extends Messages["type"]>(channel: Channel, callback: (value: Extract<Messages, { type: Channel }>["props"]) => void) {
+        return this.events.on(channel, callback);
     }
 }();
