@@ -7,6 +7,12 @@ import { BindableProperty } from "./property";
 
 const extensionId = "ngbhofnofkggjbpkpnogcdfdgjkpmgka";
 
+interface PendingMessage {
+    type: string;
+    message: any;
+    returnId?: string;
+}
+
 export default new class Port {
     port?: chrome.runtime.Port;
     firstMessage = true;
@@ -83,12 +89,21 @@ export default new class Port {
         });
     }
 
+    pendingMessage: PendingMessage | null = null;
     async postMessage(type: string, message: any, returnId?: string) {
         // just discard messages sent while disconnected, we'll resynchronize to before they mattered
         if(this.disconnected.value) return;
 
         if(typeof chrome !== "undefined") {
-            this.port?.postMessage({ type, message, returnId, source: "gimloader-out" });
+            try {
+                this.port?.postMessage({ type, message, returnId, source: "gimloader-out" });
+            } catch(e) {
+                console.warn("Failed to send message, attempting reconnect", e);
+                this.disconnected.value = true;
+                this.pendingMessage = { type, message, returnId };
+                this.connectPort();
+            }
+
             return;
         }
 
@@ -115,6 +130,11 @@ export default new class Port {
 
         // the first message will contain the state, others will contain updates to it
         if(this.firstMessage) {
+            if(this.pendingMessage) {
+                this.postMessage(this.pendingMessage.type, this.pendingMessage.message, this.pendingMessage.returnId);
+                this.pendingMessage = null;
+            }
+
             if(this.firstState) {
                 this.firstState = false;
                 StateManager.init(data, {
