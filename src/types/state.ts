@@ -25,6 +25,7 @@ export interface HotkeyTrigger {
     ctrl?: boolean;
     shift?: boolean;
     alt?: boolean;
+    meta?: boolean;
 }
 
 export type ConfigurableHotkeysState = Record<string, HotkeyTrigger | null>;
