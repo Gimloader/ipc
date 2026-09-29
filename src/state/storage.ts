@@ -58,10 +58,11 @@ export default class StorageState extends TypedEventEmitter<StorageEvents> {
         this.emit("pluginValueUpdate", id, key, value, remote);
     }
 
-    onPluginSettingUpdate({ id, key, value }: StateMessageProps<"pluginSettingUpdate">) {
+    onPluginSettingUpdate({ id, key, value }: StateMessageProps<"pluginSettingUpdate">, remote: boolean) {
         this.pluginSettings.value[id] ??= {};
         this.pluginSettings.value[id][key] = value;
         this.emit("pluginSettingsChange");
+        this.emit("pluginSettingUpdate", id, key, value, remote);
     }
 
     onClearPluginStorage({ id }: StateMessageProps<"clearPluginStorage">) {
