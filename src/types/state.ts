@@ -51,6 +51,7 @@ export interface Settings {
     menuView: "grid" | "list";
     showPluginButtons: boolean;
     suppressGimkitLogs: boolean;
+    disableCache: boolean;
 }
 
 export interface SavedState {

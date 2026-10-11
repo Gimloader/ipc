@@ -14,7 +14,8 @@ export const defaultSettings: Settings = {
     autoDownloadMissingPlugins: false,
     menuView: "grid",
     showPluginButtons: true,
-    suppressGimkitLogs: false
+    suppressGimkitLogs: false,
+    disableCache: false
 };
 
 export const defaultState: State = {
