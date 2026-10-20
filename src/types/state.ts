@@ -52,6 +52,7 @@ export interface Settings {
     showPluginButtons: boolean;
     suppressGimkitLogs: boolean;
     disableCache: boolean;
+    ignoreReloadRequests: boolean;
 }
 
 export interface SavedState {

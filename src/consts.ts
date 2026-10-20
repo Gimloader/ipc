@@ -15,7 +15,8 @@ export const defaultSettings: Settings = {
     menuView: "grid",
     showPluginButtons: true,
     suppressGimkitLogs: false,
-    disableCache: false
+    disableCache: false,
+    ignoreReloadRequests: false
 };
 
 export const defaultState: State = {
