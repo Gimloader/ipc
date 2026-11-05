@@ -139,17 +139,17 @@ export default abstract class ScriptState<
         return this.scripts.value.find(s => s.name === name) ?? null;
     }
 
-    getDependencies(headers: ScriptHeaders) {
+    getDependencies({ needsLib, needsPlugin }: { needsLib: string[], needsPlugin: string[] }) {
         const dependencies: Dependency[] = [];
 
-        for(const lib of headers.needsLib) {
+        for(const lib of needsLib) {
             const [name, url] = parseDep(lib);
             dependencies.push({ name, type: "library", url });
         }
 
         // Libraries cannot depend on plugins
         if(this.type === "plugin") {
-            for(const plugin of headers.needsPlugin) {
+            for(const plugin of needsPlugin) {
                 const [name, url] = parseDep(plugin);
                 dependencies.push({ name, type: "plugin", url });
             }

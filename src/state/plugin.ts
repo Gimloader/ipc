@@ -4,7 +4,7 @@ import type { ScriptInfo } from "../types/state";
 import type StateManager from ".";
 import { englishList } from "../utils";
 import { apply, stateMessageEvents } from "./events";
-import ScriptState from "./script";
+import ScriptState, { scriptMap } from "./script";
 
 export default class PluginState extends ScriptState<"plugin"> {
     constructor(stateManager: typeof StateManager) {
@@ -73,45 +73,13 @@ export default class PluginState extends ScriptState<"plugin"> {
 
     async tryTogglePlugin(name: string, enabled: boolean, confirmed = false): Promise<ToggleResult> {
         if(enabled) {
-            const { error, willDownload, willEnable } = this.checkDependenciesOf(name);
-            if(error) return { status: "dependencyError", message: error };
+            const script = scriptMap.get(name);
+            if(!script) return { status: "dependencyError", message: `Could not find script ${name}` };
 
-            const warnAbout = willDownload.filter((dep) => this.shouldWarnAbout(dep));
+            const result = await this.tryEnableDeps(name, script.dependencies, confirmed);
+            if(result.status !== "success") return result;
 
-            // Prompt for confirmation if needed
-            if((warnAbout.length > 0 || willEnable.length > 0) && !confirmed) {
-                let msg = `Enabling ${name} `;
-                if(warnAbout.length > 0) {
-                    const names = englishList(warnAbout.map(d => d.name));
-                    msg += `will download ${names}`;
-                }
-                if(willEnable.length > 0) {
-                    if(warnAbout.length > 0) msg += " and ";
-                    const names = englishList(willEnable);
-                    msg += `will enable ${names}`;
-                }
-                msg += ". Continue?";
-
-                return { status: "confirm", message: msg };
-            }
-
-            // Download dependencies
-            if(willDownload.length > 0) {
-                const failed = await this.stateManager.handlers.downloadDependencies(willDownload);
-                if(failed.length > 0) {
-                    const message = `Dependencies could not be downloaded:\n${failed.join("\n")}`;
-                    return { status: "downloadError", message };
-                }
-            }
-
-            // Enable dependencies
-            for(const name of willEnable) {
-                apply("pluginToggled", { name, enabled: true });
-            }
-
-            apply("cacheInvalid", { invalid: true });
-            apply("pluginToggled", { name: name, enabled: enabled });
-
+            apply("pluginToggled", { name: name, enabled: true })
             return { status: "success" };
         } else {
             const willDisable = this.checkDependents(name);
@@ -201,6 +169,48 @@ export default class PluginState extends ScriptState<"plugin"> {
         }
 
         apply("pluginSetAll", { enabled: true, folder });
+        return { status: "success" };
+    }
+
+    async tryEnableDeps(name: string, dependencies: Dependency[], confirmed = false): Promise<ToggleResult> {
+        const { error, willDownload, willEnable } = this.checkDependencies(name, dependencies);
+        if(error) return { status: "dependencyError", message: error };
+
+        const warnAbout = willDownload.filter((dep) => this.shouldWarnAbout(dep));
+
+        // Prompt for confirmation if needed
+        if((warnAbout.length > 0 || willEnable.length > 0) && !confirmed) {
+            let msg = `Enabling ${name} `;
+            if(warnAbout.length > 0) {
+                const names = englishList(warnAbout.map(d => d.name));
+                msg += `will download ${names}`;
+            }
+            if(willEnable.length > 0) {
+                if(warnAbout.length > 0) msg += " and ";
+                const names = englishList(willEnable);
+                msg += `will enable ${names}`;
+            }
+            msg += ". Continue?";
+
+            return { status: "confirm", message: msg };
+        }
+
+        // Download dependencies
+        if(willDownload.length > 0) {
+            const failed = await this.stateManager.handlers.downloadDependencies(willDownload);
+            if(failed.length > 0) {
+                const message = `Dependencies could not be downloaded:\n${failed.join("\n")}`;
+                return { status: "downloadError", message };
+            }
+        }
+
+        // Enable dependencies
+        for(const name of willEnable) {
+            apply("pluginToggled", { name, enabled: true });
+        }
+
+        apply("cacheInvalid", { invalid: true });
+
         return { status: "success" };
     }
 }
