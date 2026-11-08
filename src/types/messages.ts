@@ -62,9 +62,9 @@ export type StateMessages =
     | Message<"hotkeyUpdate", { id: string; trigger: HotkeyTrigger | null }>
     | Message<"hotkeysUpdate", { hotkeys: ConfigurableHotkeysState }>
     | Message<"settingUpdate", { key: string; value: any }>
-    | Message<"pluginValueUpdate", { id: string; key: string; value: string }>
+    | Message<"pluginValueUpdate", { id: string; key: string; value: any }>
     | Message<"pluginValueDelete", { id: string; key: string }>
-    | Message<"pluginSettingUpdate", { id: string; key: string; value: string }>
+    | Message<"pluginSettingUpdate", { id: string; key: string; value: any }>
     | Message<"clearPluginStorage", { id: string }>
     | Message<"cacheInvalid", { invalid: boolean }>
     | Message<"pluginToggled", { name: string; enabled: boolean }>
